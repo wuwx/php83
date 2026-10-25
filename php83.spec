@@ -24,10 +24,18 @@
 
 %global mysql_sock %(mysql_config --socket 2>/dev/null || echo /var/lib/mysql/mysql.sock)
 
+%if 0%{?rhel} == 7
+# EL7 仓库只提供 Instant Client 21
+%global oraclever 21.0
+%global oraclemax 22
+%global oraclelib 21.1
+%global oracledir 21
+%else
 %global oraclever 23.26.3
 %global oraclemax 24
 %global oraclelib 23.1
 %global oracledir 23
+%endif
 
 # Build for LiteSpeed Web Server (LSAPI), you can disable using --without tests
 %bcond_without        lsws
@@ -222,6 +230,10 @@ BuildRequires: httpd-filesystem
 BuildRequires: nginx-filesystem
 %endif
 BuildRequires: %{?dtsprefix}libstdc++-devel
+%if 0%{?rhel} == 7
+# EL7 系统 OpenSSL 只有 1.0.2，PHP 8.3 需要 1.1
+BuildRequires: openssl11-devel
+%endif
 # no pkgconfig to avoid compat-openssl10
 BuildRequires: openssl-devel >= 1.0.2
 BuildRequires: pkgconfig(sqlite3) >= 3.7.4
@@ -710,7 +722,8 @@ Provides: php-pdo_odbc, php-pdo_odbc%{?_isa}
 %if %{with iodbc}
 BuildRequires: pkgconfig(libiodbc)
 %else
-BuildRequires: pkgconfig(odbc)
+# EL7 的 unixODBC-devel 不带 pkgconfig 文件
+BuildRequires: unixODBC-devel
 %endif
 %if 0%{?rhel} == 7
 Obsoletes: php53-odbc, php53u-odbc, php54-odbc, php54w-odbc, php55u-odbc, php55w-odbc, php56u-odbc, php56w-odbc
@@ -777,7 +790,12 @@ Interbase/Firebird databases.
 Summary:        A module for PHP applications that use OCI8 databases
 # All files licensed under PHP version 3.01
 License:        PHP-3.01
+%if 0%{?rhel} == 7
+# rpm 4.11 不支持富依赖
+BuildRequires:  oracle-instantclient-devel >= %{oraclever}
+%else
 BuildRequires: (oracle-instantclient-devel >= %{oraclever} with oracle-instantclient-devel < %{oraclemax})
+%endif
 Requires:       php-pdo%{?_isa} = %{version}-%{release}
 Provides:       php_database
 Provides:       php-pdo_oci
@@ -1061,9 +1079,15 @@ Summary: Internationalization extension for PHP applications
 # All files licensed under PHP version 3.01
 License:  PHP-3.01
 Requires: php-common%{?_isa} = %{version}-%{release}
+%if 0%{?rhel} == 7
+BuildRequires: pkgconfig(icu-i18n) >= 73
+BuildRequires: pkgconfig(icu-io)   >= 73
+BuildRequires: pkgconfig(icu-uc)   >= 73
+%else
 BuildRequires: pkgconfig(icu-i18n) >= 74
 BuildRequires: pkgconfig(icu-io)   >= 74
 BuildRequires: pkgconfig(icu-uc)   >= 74
+%endif
 %if 0%{?rhel} == 7
 Obsoletes: php53-intl, php53u-intl, php54-intl, php54w-intl, php55u-intl, php55w-intl, php56u-intl, php56w-intl
 Obsoletes: php70u-intl, php70w-intl, php71u-intl, php71w-intl, php72u-intl, php72w-intl
@@ -1375,6 +1399,14 @@ export PHP_BUILD_PROVIDER="%{vendor}"
 %endif
 export PHP_BUILD_COMPILER="$(gcc --version | head -n1)"
 export PHP_BUILD_ARCH="%{_arch}"
+
+%if 0%{?rhel} == 7
+# 预置这两个变量可让 configure 跳过 pkg-config，改用 openssl11
+export OPENSSL_CFLAGS="$(pkg-config --cflags openssl11)"
+export OPENSSL_LIBS="$(pkg-config --libs openssl11)"
+# glibc 2.17 的 strncmp 宏会把 ZEND_STRL 展开的 2 个实参判成参数不足
+export CPPFLAGS="$CPPFLAGS -D_HAVE_STRING_ARCH_strncmp"
+%endif
 
 # Force use of system libtool:
 libtoolize --force --copy

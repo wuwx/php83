@@ -1,0 +1,52 @@
+name: build php83 rpm (el7)
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_package_cloud:
+        description: 构建成功后推送到 package_cloud
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v83*'
+
+concurrency:
+  group: build-el7-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PKGCLOUD_REPO: wuwx/php83/el/7
+
+jobs:
+  rpm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 下载 src.rpm
+        run: |
+          mkdir -p .ci/input dist
+          curl -fsSL --retry 3 --retry-delay 5 -o .ci/input/php-8.3.36-1.remi.src.rpm \
+            https://rpms.remirepo.net/SRPMS/php-8.3.36-1.remi.src.rpm
+          ls -l .ci/input
+
+      - name: 在 centos:7 中构建
+        run: docker run --rm -v "$PWD:/work" -w /work centos:7 bash ci/el7/build.sh
+
+      - name: 上传 RPM
+        uses: actions/upload-artifact@v4
+        with:
+          name: php83-el7
+          path: dist/*.rpm
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: 推送到 package_cloud
+        if: github.event_name == 'push' || inputs.push_package_cloud
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+        run: |
+          gem install --no-document package_cloud
+          package_cloud push "$PKGCLOUD_REPO" dist/*.rpm
