@@ -134,7 +134,7 @@
 %bcond_without         libgd
 %bcond_with            zip
 
-%global upver          8.3.36
+%global upver          8.3.37
 # TODO set PHP_EXTRA_VERSION for EOL version
 
 Summary: PHP scripting language for creating dynamic web sites
@@ -1084,9 +1084,9 @@ BuildRequires: pkgconfig(icu-i18n) >= 73
 BuildRequires: pkgconfig(icu-io)   >= 73
 BuildRequires: pkgconfig(icu-uc)   >= 73
 %else
-BuildRequires: pkgconfig(icu-i18n) >= 74
-BuildRequires: pkgconfig(icu-io)   >= 74
-BuildRequires: pkgconfig(icu-uc)   >= 74
+BuildRequires: pkgconfig(icu-i18n) >= 78
+BuildRequires: pkgconfig(icu-io)   >= 78
+BuildRequires: pkgconfig(icu-uc)   >= 78
 %endif
 %if 0%{?rhel} == 7
 Obsoletes: php53-intl, php53u-intl, php54-intl, php54w-intl, php55u-intl, php55w-intl, php56u-intl, php56w-intl
@@ -2268,6 +2268,10 @@ fi
 
 
 %changelog
+* Wed Nov 18 2026 Remi Collet <remi@remirepo.net> - 8.3.37-1
+- Update to 8.3.37 - http://www.php.net/releases/8_3_37.php
+- use ICU 78.3
+
 * Thu Oct 22 2026 Remi Collet <remi@remirepo.net> - 8.3.36-1
 - Update to 8.3.36 - http://www.php.net/releases/8_3_36.php
 

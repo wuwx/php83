@@ -28,8 +28,8 @@ jobs:
       - name: 下载 src.rpm
         run: |
           mkdir -p .ci/input dist
-          curl -fsSL --retry 3 --retry-delay 5 -o .ci/input/php-8.3.36-1.remi.src.rpm \
-            https://rpms.remirepo.net/SRPMS/php-8.3.36-1.remi.src.rpm
+          curl -fsSL --retry 3 --retry-delay 5 -o .ci/input/php-8.3.37-1.remi.src.rpm \
+            https://rpms.remirepo.net/SRPMS/php-8.3.37-1.remi.src.rpm
           ls -l .ci/input
 
       - name: 在 centos:7 中构建

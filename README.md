@@ -14,8 +14,8 @@ ci/el7/build.sh                 # 构建脚本：配源 → 解包 src.rpm → �
 
 ```bash
 mkdir -p .ci/input dist
-curl -fsSL -o .ci/input/php-8.3.36-1.remi.src.rpm \
-  https://rpms.remirepo.net/SRPMS/php-8.3.36-1.remi.src.rpm
+curl -fsSL -o .ci/input/php-8.3.37-1.remi.src.rpm \
+  https://rpms.remirepo.net/SRPMS/php-8.3.37-1.remi.src.rpm
 
 docker run --rm -v "$PWD:/work" -w /work centos:7 bash ci/el7/build.sh
 ```
