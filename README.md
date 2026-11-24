@@ -20,7 +20,7 @@ curl -fsSL -o .ci/input/php-8.3.37-1.remi.src.rpm \
 docker run --rm -v "$PWD:/work" -w /work centos:7 bash ci/el7/build.sh
 ```
 
-产物在 `dist/`：34 个二进制包 + 1 个 src.rpm。
+产物在 `dist/`：34 个二进制包 + 1 个 src.rpm，release 末尾带 `.wuwx` 后缀（`php-8.3.37-1.el7.wuwx.x86_64.rpm`），与 remi 官方包区分。
 
 构建依赖全部来自已 EOL 的归档源（vault.centos.org、EPEL 7 archive、remi el7），网络不稳时脚本会走阿里云镜像兜底并重试。
 
