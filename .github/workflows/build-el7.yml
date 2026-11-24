@@ -48,5 +48,5 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
         run: |
-          gem install --no-document package_cloud
+          sudo gem install --no-document package_cloud
           package_cloud push "$PKGCLOUD_REPO" dist/*.rpm
