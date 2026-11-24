@@ -20,7 +20,7 @@ curl -fsSL -o .ci/input/php-8.3.37-1.remi.src.rpm \
 docker run --rm -v "$PWD:/work" -w /work centos:7 bash ci/el7/build.sh
 ```
 
-产物在 `dist/`：34 个二进制包 + 1 个 src.rpm，release 末尾带 `.wuwx` 后缀（`php-8.3.37-1.el7.wuwx.x86_64.rpm`），与 remi 官方包区分。
+产物在 `dist/`：33 个二进制包 + 1 个 src.rpm，release 末尾带 `.wuwx` 后缀（`php-8.3.37-1.el7.wuwx.x86_64.rpm`），与 remi 官方包区分。
 
 构建依赖全部来自已 EOL 的归档源（vault.centos.org、EPEL 7 archive、remi el7），网络不稳时脚本会走阿里云镜像兜底并重试。
 
@@ -41,7 +41,8 @@ docker run --rm -v "$PWD:/work" -w /work centos:7 bash ci/el7/build.sh
 | glibc 2.17 把 `strncmp` 定义成宏，与 `ZEND_STRL` 的实参计数冲突 | `-D_HAVE_STRING_ARCH_strncmp` 抑制该宏 |
 | rpm 4.11 不支持富依赖 `(A with B)` | oci8 的 BuildRequires 降级为普通版本约束 |
 | EL7 的 `unixODBC-devel` 没有 pkgconfig 文件 | 直接依赖 `unixODBC-devel` |
-| 上游要求 ICU >= 74，EL7 只有 remi 的 libicu73 | EL7 分支放宽到 `>= 73` |
+| 上游要求 ICU >= 78，EL7 只有 remi 的 libicu73 | EL7 分支放宽到 `>= 73` |
+| 不需要 `php-debuginfo`（体积大且不装机） | `rpmbuild --define "debug_package %{nil}"` |
 | rpm 4.11 不认识 `%bcond_with(out)` | 构建前写入 `/etc/rpm/macros.d/macros.bcond` |
 | el9 打的 src.rpm 无法 `rpm -i` | 改用 `rpm2cpio \| cpio` 解包（payload 是 gzip，rpm 4.11 能读） |
 

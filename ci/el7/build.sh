@@ -111,6 +111,7 @@ echo "== 开始构建（跳过 %check） =="
 rpmbuild -ba --nocheck --with oci8 \
   --define "_topdir $TOPDIR" \
   --define "dist .el7" \
+  --define "debug_package %{nil}" \
   "$SPEC"
 
 echo "== 收集产物 =="
